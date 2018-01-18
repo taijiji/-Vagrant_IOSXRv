@@ -58,6 +58,18 @@ iosxrv1                   running (virtualbox)
 
 # Access and login
 
+## Access as Server
+
+```
+$ vagrant ssh iosxrv1
+
+host:~$
+host:~$ pwd
+/home/vagrant
+```
+
+## Access as Router
+
 ```
 $ ssh -p 2223 vagrant@localhost
 
@@ -83,5 +95,59 @@ cisco IOS XRv x64 () processor
 System uptime is 8 minutes
 ```
 
+# Shutdown
+You cannot shutdown by using 'vagrant halt'.
+
+```
+$ vagrant suspend iosxrv1
+==> iosxrv1: Saving VM state and suspending execution...
+
+$ vagrant git:(master) ✗ vagrant status
+Current machine states:
+
+vsrx1                     poweroff (virtualbox)
+iosxrv1                   saved (virtualbox)
+```
+
+# Default Configuration
+
+```
+RP/0/RP0/CPU0:ios#show running-config
+Wed Jan 17 13:01:40.205 UTC
+Building configuration...
+!! IOS XR Configuration version = 6.2.1.23I
+!! Last configuration change at Mon Nov 21 07:59:46 2016 by vagrant
+!
+telnet vrf default ipv4 server max-servers 10
+username vagrant
+ group root-lr
+ group cisco-support
+ secret 5 $1$RQve$C1P.pH/koIKYsybRgxtSZ0
+!
+tpa
+ address-family ipv4
+  update-source MgmtEth0/RP0/CPU0/0
+ !
+!
+interface MgmtEth0/RP0/CPU0/0
+ ipv4 address dhcp
+!
+interface GigabitEthernet0/0/0/0
+ shutdown
+!
+router static
+ address-family ipv4 unicast
+  0.0.0.0/0 MgmtEth0/RP0/CPU0/0 10.0.2.2
+ !
+!
+grpc
+ port 57777
+!
+ssh server v2
+ssh server vrf default
+end
+```
+
 # Reference
 - [XR toolbox, Part 1 : IOS-XR Vagrant Quick Start](https://xrdocs.github.io/application-hosting/tutorials/iosxr-vagrant-quickstart)
+- [IOS-XRv Vagrantを試してみた](https://qiita.com/Mabuchin/items/22992f157f301d63b715)
